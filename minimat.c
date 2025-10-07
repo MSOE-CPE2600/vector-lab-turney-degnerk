@@ -76,11 +76,11 @@ int main(int argc, char *argv[])
         // Determine whether input has '=' (assignment)
         if (strstr(line, " = ") != NULL) {
             if (!eval_assignment(line)) {
-                printf("Invalid assignment. Remember spaces around symbols.\n");
+                printf("Invalid assignment. Remember spaces between arguments.\n");
             }
         } else {
             if (!eval_expression(line)) {
-                printf("Invalid expression. Remember spaces around symbols.\n");
+                printf("Invalid expression. Remember spaces between arguments.\n");
             }
         }
     }
