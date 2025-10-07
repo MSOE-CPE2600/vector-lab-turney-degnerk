@@ -254,7 +254,7 @@ bool eval_expression(const char *input) {
 
 // Display help text
 void print_help() {
-    puts("Commands:");
+    puts("Mini MATLAB Commands:");
     puts("  var = x y z      assign 3D vector");
     puts("  var = a + b      add vectors");
     puts("  var = a - b      subtract vectors");
@@ -267,3 +267,4 @@ void print_help() {
     puts("  clear            clear vector storage");
     puts("  quit             exit program");
 }
+
