@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall
 LDFLAGS=
-SOURCES=minimat.c parser.c vector_array.c vector_math.c
+SOURCES=minimat.c parser.c vector_math.c vector_linked_list.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=minimat
 all: $(SOURCES) $(EXECUTABLE)
