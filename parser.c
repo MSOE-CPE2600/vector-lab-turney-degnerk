@@ -6,7 +6,8 @@
 ***********************************************/
 
 #include "parser.h"
-#include "vector_array.h"
+#include "vector.h"
+#include "vector_linked_list.h"
 #include "vector_math.h"
 #include <stdio.h>
 #include <string.h>
@@ -14,16 +15,92 @@
 #include <ctype.h>
 
 
+bool load_vectors(const char *filename, LinkedList *linked_list) 
+{
+    char line[128];
+
+    // Clear existing vectors
+    clear(linked_list);
+
+    // Open csv file
+    FILE *file = fopen(filename, "r");
+
+    if (file == NULL) {
+        printf("Error: could not open file %s for reading.\n", filename);
+        return false;
+    }
+
+    while (fgets(line, sizeof(line), file)) {
+        if (line[0] == '\0') 
+        {
+            continue; // skip empty lines
+        }
+
+        // Split by commas (expect 4 tokens)
+        char *p = line;
+        char *t1 = strsep(&p, ",");
+        char *t2 = strsep(&p, ",");
+        char *t3 = strsep(&p, ",");
+        char *t4 = strsep(&p, ",");
+
+        if (!t1 || !t2 || !t3 || !t4) {
+            printf("Skipping Invalid Line: \"%s\"\n", line);
+            continue;
+        }
+
+        // Copy name
+        char name[MAX_NAME];
+        strncpy(name, t1, MAX_NAME - 1);
+        name[MAX_NAME - 1] = '\0';
+
+        // Parse floats
+        char *end2 = NULL, *end3 = NULL, *end4 = NULL;
+        float x = strtof(t2, &end2);
+        float y = strtof(t3, &end3);
+        float z = strtof(t4, &end4);
+        if ((end2 == t2) || (end3 == t3) || (end4 == t4)) {
+            printf("Skipping Invalid Line: \"%s\"\n", line);
+            continue;
+        }
+
+        add_vector(linked_list, name, x, y, z);
+    }
+
+
+    fclose(file);
+    return true;
+}
+
+
+bool save_vectors(const char *filename, LinkedList *list) {
+    // Open csv file
+    FILE *file = fopen(filename, "w");
+    Vector *current = list->first;
+
+    if (file == NULL) {
+        printf("Error: could not open file %s for writing.\n", filename);
+        return false;
+    }
+
+    // Write each vector to file
+    while (current != NULL) {
+        fprintf(file, "%s,%.2f,%.2f,%.2f\n", current->varname, current->x, current->y, current->z);
+        current = current->next;
+    }
+
+    fclose(file);
+    return true;
+}
+
+
 // Evaluate expression with assignment
-bool eval_assignment(const char *input) {
+bool eval_assignment(LinkedList *linked_list, const char *input) {
     char left_operand[16], operand1[16], operator[4], operand2[16];
     double x, y, z;
 
     // Direct numeric assignment
     if (sscanf(input, "%15s = %lf %lf %lf", left_operand, &x, &y, &z) == 4) {
-        Vector v = {"", x, y, z};
-        strcpy(v.varname, left_operand);
-        add_vect(v);
+        add_vector(linked_list, left_operand, x, y, z);
         return true;
     }
 
@@ -35,13 +112,13 @@ bool eval_assignment(const char *input) {
         bool b_exists = false;
 
         // Check if the vectors exist
-        Vector temp = find_vector(operand1);
+        Vector temp = find_vector(linked_list, operand1);
         if (temp.varname[0] != '\0') 
         { 
             A = temp; 
             a_exists = true; 
         }
-        temp = find_vector(operand2);
+        temp = find_vector(linked_list, operand2);
         if (temp.varname[0] != '\0') 
         { 
             B = temp; 
@@ -59,7 +136,7 @@ bool eval_assignment(const char *input) {
             result = add_vectors(A, B);
             strncpy(result.varname, left_operand, 15);
             result.varname[15] = '\0';
-            add_vect(result);
+            add_vector(linked_list, result.varname, result.x, result.y, result.z);
             printf("%s = %.3f %.3f %.3f\n", result.varname, result.x, result.y, result.z);
         }
         else if (strcmp(operator, "-") == 0) // Subtraction
@@ -71,7 +148,7 @@ bool eval_assignment(const char *input) {
             result = subtract_vectors(A, B);
             strncpy(result.varname, left_operand, 15);
             result.varname[15] = '\0';
-            add_vect(result);
+            add_vector(linked_list, result.varname, result.x, result.y, result.z);
             printf("%s = %.3f %.3f %.3f\n", result.varname, result.x, result.y, result.z);
         }
         else if (strcmp(operator, "*") == 0) // Scalar Multiplication
@@ -82,7 +159,7 @@ bool eval_assignment(const char *input) {
                 result = scalar_multiply(A, k);
                 strncpy(result.varname, left_operand, 15);
                 result.varname[15] = '\0';
-                add_vect(result);
+                add_vector(linked_list, result.varname, result.x, result.y, result.z);
                 printf("%s = %.3f %.3f %.3f\n", result.varname, result.x, result.y, result.z);
             } 
             else if (!a_exists && b_exists) 
@@ -91,7 +168,7 @@ bool eval_assignment(const char *input) {
                 result = scalar_multiply(B, k);
                 strncpy(result.varname, left_operand, 15);
                 result.varname[15] = '\0';
-                add_vect(result);
+                add_vector(linked_list, result.varname, result.x, result.y, result.z);
                 printf("%s = %.3f %.3f %.3f\n", result.varname, result.x, result.y, result.z);
             } 
             else
@@ -121,7 +198,7 @@ bool eval_assignment(const char *input) {
             result = cross_product(A, B);
             strncpy(result.varname, left_operand, 15);
             result.varname[15] = '\0';
-            add_vect(result);
+            add_vector(linked_list, result.varname, result.x, result.y, result.z);
             printf("%s = %.3f %.3f %.3f\n", result.varname, result.x, result.y, result.z);
             return true;
         }
@@ -139,7 +216,7 @@ bool eval_assignment(const char *input) {
 
 
 // Evaluate expression without assignment
-bool eval_expression(const char *input) {
+bool eval_expression(LinkedList *linked_list, const char *input) {
     char operand1[16], operator[4], operand2[16];
 
     // Two operands with operator
@@ -150,13 +227,13 @@ bool eval_expression(const char *input) {
         bool b_exists = false;
 
         // Check if the vectors exist
-        Vector temp = find_vector(operand1);
+        Vector temp = find_vector(linked_list, operand1);
         if (temp.varname[0] != '\0') 
         { 
             A = temp; 
             a_exists = true; 
         }
-        temp = find_vector(operand2);
+        temp = find_vector(linked_list, operand2);
         if (temp.varname[0] != '\0') 
         { 
             B = temp; 
@@ -237,7 +314,7 @@ bool eval_expression(const char *input) {
 
     // Single name
     if (sscanf(input, "%15s", operand1) == 1) {
-        Vector v = find_vector(operand1);
+        Vector v = find_vector(linked_list, operand1);
         if (v.varname[0] == '\0') {
             printf("Vector not found: %s\n", operand1);
             return true;
@@ -265,6 +342,9 @@ void print_help() {
     puts("  var              display stored vector");
     puts("  list             list all vectors");
     puts("  clear            clear vector storage");
+    puts("  load <filename>  load vectors from file");
+    puts("  save <filename>  save vectors to file");
+    puts("  make <count>     generate random vectors");
     puts("  quit             exit program");
 }
 

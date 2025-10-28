@@ -10,12 +10,22 @@
 
 #define MAX_NAME 16
 
-typedef struct
+typedef struct Vector Vector;
+
+typedef struct Vector
 {
     char varname[MAX_NAME];
     float x;
     float y;
     float z;
+    Vector *next;
+    Vector *prev;
 } Vector;
+
+typedef struct
+{
+    Vector *first;
+    Vector *last;
+} LinkedList;
 
 #endif
