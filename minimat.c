@@ -13,7 +13,7 @@
 #include "vector.h"
 #include <stdio.h>
 #include <string.h>
-
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
@@ -69,6 +69,8 @@ int main(int argc, char *argv[])
         if (strcmp(line, "quit") == 0)
         {
             clear(linked_list);
+            free(linked_list);
+            linked_list = NULL;
             printf("Goodbye!\n");
             break;
         }
