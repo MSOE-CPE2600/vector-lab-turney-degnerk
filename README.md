@@ -2,7 +2,7 @@
 The vector calculator program uses dynamic memory to create and perform math with vectors. This MATLAB-style program allows you to perform add, subtract, multiply, divide, scalar multiply, load csv, and save csv vector operations.
 
 ## Build Program
-To build the program, perform a `make clean` and `make all`. To build by hand, perform the command `gcc -o minimat minimat.c vector_array.c vector_math.c parser.c`.
+To build the program, perform a `make clean` and `make all`. To build by hand, perform the command `gcc -o minimat minimat.c vector_linked_list.c vector_math.c parser.c`.
 
 ## Run Program
 To run the program, perform a `./minimat` command. Running `./minimat -h` will display the possible program options.
@@ -22,6 +22,7 @@ The following are commands that are supported by the program.
     clear            clear vector storage
     load <filename>  load vectors from file
     save <filename>  save vectors to file
+    make <count>     generate a certain number of random vectors
     quit             exit program
 
 ## Dynamic Memory
