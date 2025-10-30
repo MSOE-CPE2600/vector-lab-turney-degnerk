@@ -30,11 +30,22 @@ bool load_vectors(const char *filename, LinkedList *linked_list)
         return false;
     }
 
+    // Fix for BOM so first vector is read correctly
+    unsigned char bom[3];
+    if (fread(bom, 1, 3, file) == 3) {
+        if (!(bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)) {
+            // Not a BOM
+            fseek(file, 0, SEEK_SET);
+        }
+    }
+
     while (fgets(line, sizeof(line), file)) {
         if (line[0] == '\0') 
         {
             continue; // skip empty lines
         }
+
+        line[strcspn(line, "\r\n")] = '\0';
 
         // Split by commas (expect 4 tokens)
         char *p = line;
@@ -52,6 +63,7 @@ bool load_vectors(const char *filename, LinkedList *linked_list)
         char name[MAX_NAME];
         strncpy(name, t1, MAX_NAME - 1);
         name[MAX_NAME - 1] = '\0';
+        name[strcspn(name, "\r\n")] = '\0'; 
 
         // Parse floats
         char *end2 = NULL, *end3 = NULL, *end4 = NULL;
@@ -64,6 +76,7 @@ bool load_vectors(const char *filename, LinkedList *linked_list)
         }
 
         add_vector(linked_list, name, x, y, z);
+        printf("Loaded: '%s' (%.2f, %.2f, %.2f)\n", name, x, y, z);
     }
 
 
@@ -233,10 +246,10 @@ bool eval_expression(LinkedList *linked_list, const char *input) {
             A = temp; 
             a_exists = true; 
         }
-        temp = find_vector(linked_list, operand2);
-        if (temp.varname[0] != '\0') 
+        Vector temp2 = find_vector(linked_list, operand1);
+        if (temp2.varname[0] != '\0') 
         { 
-            B = temp; 
+            B = temp2; 
             b_exists = true; 
         }
 

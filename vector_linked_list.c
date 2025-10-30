@@ -55,7 +55,9 @@ void add_vector(LinkedList *list, char *name, float x, float y, float z)
     }
 
     // Copy values from input vector to new vector
-    strcpy(new_vector->varname, name);
+    strncpy(new_vector->varname, name, MAX_NAME - 1);
+    new_vector->varname[MAX_NAME - 1] = '\0';
+    
     new_vector->x = x;
     new_vector->y = y;
     new_vector->z = z;
