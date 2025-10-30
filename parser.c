@@ -357,7 +357,7 @@ void print_help() {
     puts("  clear            clear vector storage");
     puts("  load <filename>  load vectors from file");
     puts("  save <filename>  save vectors to file");
-    puts("  make <count>     generate random vectors");
+    puts("  fill <count>     generate random vectors");
     puts("  quit             exit program");
 }
 

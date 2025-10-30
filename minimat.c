@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
         } else if (sscanf(line, "save %s", filename) == 1){
             save_vectors(filename, linked_list);
             continue;
-        } else if (sscanf(line, "make %d", &count) == 1){
+        } else if (sscanf(line, "fill %d", &count) == 1){
             fill_random_vectors(linked_list, count);
             continue;
         }
