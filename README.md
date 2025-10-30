@@ -22,7 +22,7 @@ The following are commands that are supported by the program.
     clear            clear vector storage
     load <filename>  load vectors from file
     save <filename>  save vectors to file
-    list <count>     generate a certain number of random vectors
+    fill <count>     generate a certain number of random vectors
     quit             exit program
 
 ## Dynamic Memory
